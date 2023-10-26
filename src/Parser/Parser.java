@@ -26,8 +26,27 @@ public class Parser {
      * @return <strong style="color:'white'">true if the input correct otherwise false</strong>
      * </blockquote>
      */
-    public boolean parse(String input){
-        return false;
+    public boolean parse(String input) {
+        if (input.isEmpty()) {
+            return false;
+        }
+
+        String[] parts = input.split(" ", 2);
+        commandName = parts[0];
+
+        if (parts.length > 1) {
+            String argString = parts[1].trim();
+
+            if (argString.startsWith("\"") && argString.endsWith("\"")) {
+                args = new String[]{argString.substring(1, argString.length() - 1)};
+            } else {
+                args = argString.split(" ");
+            }
+        } else {
+            args = new String[0];
+        }
+
+        return true;
     }
 
     /**
@@ -36,7 +55,7 @@ public class Parser {
      * @return String <strong style="color:'white'">{@code commandName}</strong>
      */
     public String getCommandName(){
-        return null;
+        return commandName;
     }
 
     /**
@@ -45,6 +64,6 @@ public class Parser {
      * @return Array of strings <strong style="color:'white'">{@code args}</strong>
      */
     public String[] getArgs(){
-        return new String[0];
+        return args;
     }
 }
