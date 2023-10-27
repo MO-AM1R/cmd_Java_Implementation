@@ -215,8 +215,9 @@ public class Terminal {
         }
         else if(commandName.equals("history")){
             history();
-        }
-        else {
+        } else if (commandName.equals("exit")) {
+            return ;
+        } else {
             System.out.println("Command not found.");
         }
 
