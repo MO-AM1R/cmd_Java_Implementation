@@ -39,7 +39,10 @@ public class Parser {
 
         if (parts.length > 1) {
             String argString = parts[1].trim();
-
+            if (argString.charAt(0) == '-') {
+                commandName += " -" + argString.charAt(1);
+                argString = argString.substring(2);
+            }
             if (argString.startsWith("\"") && argString.endsWith("\"")) {
                 args = new String[]{argString.substring(1, argString.length() - 1)};
             } else {
