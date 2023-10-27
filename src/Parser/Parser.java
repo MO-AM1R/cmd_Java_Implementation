@@ -34,8 +34,8 @@ public class Parser {
                 return false;
             }
 
-        String[] parts = input.split(" ", 2);
-        commandName = parts[0];
+            String[] parts = input.split(" ", 2);
+            commandName = parts[0];
 
             if (parts.length > 1) {
                 String argString = parts[1].trim();

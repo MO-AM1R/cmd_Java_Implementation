@@ -32,7 +32,13 @@ public class Terminal {
     }
 
     public String echo(String[] args){
-        return null ;
+        StringBuilder ans = new StringBuilder();
+        for (String argument :
+                args) {
+            ans.append(argument).append(' ');
+        }
+
+        return ans.toString();
     }
 
     /**
