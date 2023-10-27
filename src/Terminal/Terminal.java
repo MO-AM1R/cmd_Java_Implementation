@@ -1,8 +1,15 @@
 package Terminal;
 import Parser.Parser ;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *<pre>
@@ -38,7 +45,7 @@ public class Terminal {
      * @return string <strong style="color:'white'">represent the current path</strong>
      */
     public String pwd(){
-        return null;
+        return currentDirectory;
     }
 
     /**
@@ -56,6 +63,46 @@ public class Terminal {
      */
 
     public void cd(String[] args){
+        try{
+            if (args.length == 0) {
+                currentDirectory = System.getProperty("user.home");
+            } else if (args.length == 1) {
+                String argString = args[0];
+
+                if (Objects.equals(argString, "..")) {
+                    Path path = Paths.get(currentDirectory);
+                    path = path.getParent();
+                    if (path == null) {
+                        System.out.println("you already at home");
+                        return;
+                    }
+                    currentDirectory = path.toString();
+                } else {
+                    Path path = Paths.get(argString);
+
+                    if (path.isAbsolute()) {
+                        if (Files.exists(path) && Files.isDirectory(path)) {
+                            currentDirectory = path.toString();
+                        } else {
+                            System.out.println("direction is invalid");
+                        }
+                    } else {
+                        if (Files.exists(Paths.get(currentDirectory, argString)) &&
+                                Files.isDirectory(Paths.get(currentDirectory, argString))) {
+                            currentDirectory = Paths.get(currentDirectory, argString).
+                                    normalize().toString();
+                        } else {
+                            System.out.println("direction is invalid");
+                        }
+                    }
+                }
+            } else {
+                System.out.println("cd used incorrect");
+            }
+        }
+        catch (InvalidPathException invalidPathException){
+            System.out.println("cd used incorrect");
+        }
     }
 
     /**<pre>
