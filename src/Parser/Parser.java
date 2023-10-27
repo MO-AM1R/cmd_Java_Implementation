@@ -7,7 +7,7 @@ package Parser;
  *extract the command and it's arguments
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.0</strong>
+ * @version <strong style="color:'white'">1.1</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -28,32 +28,36 @@ public class Parser {
      * </blockquote>
      */
     public boolean parse(String input) {
-        this.input = input ;
-
-        if (input.isEmpty()) {
-            return false;
-        }
+        try {
+            this.input = input;
+            if (input.isEmpty()) {
+                return false;
+            }
 
         String[] parts = input.split(" ", 2);
         commandName = parts[0];
 
-        if (parts.length > 1) {
-            String argString = parts[1].trim();
-            if (argString.charAt(0) == '-') {
-                commandName += " -" + argString.charAt(1);
-                argString = argString.substring(2);
-            }
+            if (parts.length > 1) {
+                String argString = parts[1].trim();
+                if (argString.charAt(0) == '-') {
+                    commandName += " -" + argString.charAt(1);
+                    argString = argString.substring(2);
+                }
 
-            if (argString.startsWith("\"") && argString.endsWith("\"")) {
-                args = new String[]{argString.substring(1, argString.length() - 1)};
+                if (argString.startsWith("\"") && argString.endsWith("\"")) {
+                    args = new String[]{argString.substring(1, argString.length() - 1)};
+                } else {
+                    args = argString.split(" ");
+                }
             } else {
-                args = argString.split(" ");
+                args = new String[0];
             }
-        } else {
-            args = new String[0];
-        }
 
-        return true;
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     /**
@@ -83,4 +87,7 @@ public class Parser {
         return input;
     }
 
+    public void setInput(String input) {
+        this.input = input ;
+    }
 }
