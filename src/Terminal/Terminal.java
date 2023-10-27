@@ -1,5 +1,7 @@
 package Terminal;
 import Parser.Parser ;
+
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -123,11 +125,35 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code mkdir} will print the history of commands reversed
+     *This method {@code mkdir} will creates a directory for each
+     *argument
      *</pre>
      */
-    public void mkdir(){
+    public void mkdir(String[] args){
+        StringBuilder errors = new StringBuilder() ;
 
+        for (String argument :
+                args) {
+            Path path = Paths.get(argument) ;
+
+            if (path.isAbsolute()){
+                File directory = new File(path.toString()) ;
+                if (!directory.mkdir()){
+                    errors.append("the directory ").append(directory).append(" is not created\n") ;
+                }
+            }
+            else{
+                path = Paths.get(currentDirectory, argument).normalize() ;
+
+                File directory = new File(path.toString()) ;
+                if (!directory.mkdir()){
+                    errors.append("the directory ").append(directory).append(" is not created\n") ;
+                }
+            }
+        }
+        if (!errors.toString().isEmpty()){
+            System.out.print(errors);
+        }
     }
 
     /**<pre>
@@ -241,7 +267,7 @@ public class Terminal {
             lsReversed();
         }
         else if (commandName.equals("mkdir")){
-            mkdir();
+            mkdir(parser.getArgs());
         }
         else if (commandName.equals("rmdir")){
             rmdir();
