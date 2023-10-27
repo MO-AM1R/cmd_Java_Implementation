@@ -16,6 +16,7 @@ package Parser;
 public class Parser {
     String commandName;
     String[] args;
+    String input ;
 
     /**
      *<pre>
@@ -27,6 +28,8 @@ public class Parser {
      * </blockquote>
      */
     public boolean parse(String input) {
+        this.input = input ;
+
         if (input.isEmpty()) {
             return false;
         }
@@ -66,4 +69,14 @@ public class Parser {
     public String[] getArgs(){
         return args;
     }
+
+    /**
+     * This method to return the input which parsed
+     *
+     * @return String <strong style="color:'white'">{@code input}</strong>
+     */
+    public String getInput(){
+        return input;
+    }
+
 }
