@@ -1,5 +1,8 @@
 package Terminal;
 import Parser.Parser ;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +30,11 @@ public class Terminal {
     }
 
     public String echo(String[] args){
-        return null ;
+        StringBuilder output = new StringBuilder();
+        for (String arg : args) {
+            output.append(arg).append(" ");
+        }
+        return output.toString().trim();
     }
 
     /**
@@ -37,7 +44,7 @@ public class Terminal {
      * @return string <strong style="color:'white'">represent the current path</strong>
      */
     public String pwd(){
-        return null;
+        return currentDirectory;
     }
 
     /**
@@ -55,6 +62,32 @@ public class Terminal {
      */
 
     public void cd(String[] args){
+        if (args.length == 0) {
+            currentDirectory = "C:\\Users\\Malik\\Desktop";
+        } else if (args.length == 1) {
+            String target = args[0];
+            target = target.replaceAll("\"", "") ;
+
+            if (target.equals("..")) {
+                Path path = Paths.get(currentDirectory);
+                Path parent = path.getParent();
+                if (parent != null) {
+                    currentDirectory = parent.toString();
+                } else {
+                    System.out.println("Already at the root directory.");
+                }
+            } else {
+                Path newPath = Paths.get(target);
+                if (newPath.isAbsolute()) {
+                    currentDirectory = newPath.toString();
+                } else {
+                    Path path = Paths.get(currentDirectory, target);
+                    currentDirectory = path.toString();
+                }
+            }
+        } else {
+            System.out.println("Usage: cd directory path or ..");
+        }
     }
 
     /**<pre>
