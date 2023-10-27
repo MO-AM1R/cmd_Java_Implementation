@@ -1,6 +1,5 @@
 package Terminal;
 import Parser.Parser ;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +9,7 @@ import java.util.List;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.0</strong>
+ * @version <strong style="color:'white'">1.1</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -165,6 +164,10 @@ public class Terminal {
      *</pre>
      */
     public void chooseCommandAction(){
+        if(!parser.parse(parser.getInput())){
+            System.out.println("Command not found.");
+            return;
+        }
         String commandName = parser.getCommandName() ;
 
         if (commandName.equals("echo")) {

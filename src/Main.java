@@ -8,7 +8,7 @@ import java.util.Scanner;
  *of the application
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.0</strong>
+ * @version <strong style="color:'white'">1.1</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -25,7 +25,7 @@ public class Main {
             Scanner scanner = new Scanner(System.in) ;
             System.out.print(terminal.getCurrentDirectory() + '>');
             input = scanner.nextLine() ;
-            parser.parse(input) ;
+            parser.setInput(input) ;
             terminal.setParser(parser);
             terminal.chooseCommandAction();
         }
