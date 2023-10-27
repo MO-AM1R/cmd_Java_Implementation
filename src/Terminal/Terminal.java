@@ -1,11 +1,7 @@
 package Terminal;
 import Parser.Parser ;
-
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -160,8 +156,41 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void rmdir(){
+    public void rmdir(String[] args){
+        if (args.length == 1){
+            String argument = args[0] ;
 
+            try{
+                if (argument.equals("*")) {
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+                    for (Path child : directoryStream) {
+                        if (!Files.newDirectoryStream(child).iterator().hasNext()) {
+                            Files.delete(child);
+                        }
+                    }
+
+                    directoryStream.close();
+                } else {
+                    Path path = Paths.get(argument);
+                    if (!path.isAbsolute()) {
+                        path = Paths.get(currentDirectory, argument).normalize();
+                    }
+
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+                    if (!directoryStream.iterator().hasNext()) {
+                        Files.delete(path);
+                    }
+
+                    directoryStream.close();
+                }
+            }
+            catch (Exception e){
+                System.out.println("cannot find the directory");
+            }
+        }
+        else{
+            System.out.println("incorrect command line");
+        }
     }
 
     /**<pre>
@@ -270,7 +299,7 @@ public class Terminal {
             mkdir(parser.getArgs());
         }
         else if (commandName.equals("rmdir")){
-            rmdir();
+            rmdir(parser.getArgs());
         }
         else if (commandName.equals("touch")){
             touch();
@@ -298,8 +327,9 @@ public class Terminal {
         }
         else if(commandName.equals("history")){
             history();
-        }
-        else {
+        } else if (commandName.equals("exit")) {
+            return ;
+        } else {
             System.out.println("Command not found.");
         }
 
