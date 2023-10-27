@@ -1,3 +1,7 @@
+import Parser.Parser;
+import Terminal.Terminal;
+import java.util.Scanner;
+
 /**
  *<pre>
  *This class {@code Main} will handle the run
@@ -13,6 +17,17 @@
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        Parser parser = new Parser() ;
+        Terminal terminal = new Terminal() ;
+        String input = "";
+
+        while (!input.equals("exit")){
+            Scanner scanner = new Scanner(System.in) ;
+            System.out.print(terminal.getCurrentDirectory() + '>');
+            input = scanner.nextLine() ;
+            parser.parse(input) ;
+            terminal.setParser(parser);
+            terminal.chooseCommandAction();
+        }
     }
 }

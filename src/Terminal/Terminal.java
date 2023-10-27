@@ -1,5 +1,8 @@
 package Terminal;
 import Parser.Parser ;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *<pre>
@@ -14,9 +17,18 @@ import Parser.Parser ;
  * </blockquote>
  */
 public class Terminal {
-
     /*Parser obj to parse the inputs*/
     Parser parser;
+    String currentDirectory = System.getProperty("user.dir");
+    List<String> commandsHistory = new LinkedList<>();
+
+    public void setParser(Parser parser){
+        this.parser = parser ;
+    }
+
+    public String echo(String[] args){
+        return null ;
+    }
 
     /**
      *<pre>
@@ -25,7 +37,6 @@ public class Terminal {
      * @return string <strong style="color:'white'">represent the current path</strong>
      */
     public String pwd(){
-
         return null;
     }
 
@@ -42,7 +53,109 @@ public class Terminal {
      *  the relative (short) path and changes the current path to that path.</strong>
      *</pre>
      */
+
     public void cd(String[] args){
+    }
+
+    /**<pre>
+     *This method {@code ls} will print the history of commands
+     *</pre>
+     */
+    public void ls(){
+    }
+
+    /**<pre>
+     *This method {@code lsReversed} will print the history of commands reversed
+     *</pre>
+     */
+    public void lsReversed(){
+    }
+
+    /**<pre>
+     *This method {@code mkdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void mkdir(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void rmdir(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void touch(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void cp(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void cpR(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void rm(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void cat(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void wc(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void redirect(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void redirectIfExist(){
+
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void history(){
 
     }
 
@@ -52,6 +165,62 @@ public class Terminal {
      *</pre>
      */
     public void chooseCommandAction(){
+        String commandName = parser.getCommandName() ;
 
+        if (commandName.equals("echo")) {
+            System.out.println(echo(parser.getArgs()));
+        } else if (commandName.equals("pwd")) {
+            System.out.println(pwd());
+        } else if (commandName.equals("cd")) {
+            cd(parser.getArgs());
+        }
+        else if (commandName.equals("ls")){
+            ls();
+        }
+        else if (commandName.equals("ls-r")){
+            lsReversed();
+        }
+        else if (commandName.equals("mkdir")){
+            mkdir();
+        }
+        else if (commandName.equals("rmdir")){
+            rmdir();
+        }
+        else if (commandName.equals("touch")){
+            touch();
+        }
+        else if (commandName.equals("cp")){
+            cp();
+        }
+        else if (commandName.equals("cp-r")){
+            cpR();
+        }
+        else if (commandName.equals("rm")){
+            rm();
+        }
+        else if (commandName.equals("cat")){
+            cat();
+        }
+        else if (commandName.equals("wc")){
+            wc();
+        }
+        else if(commandName.equals(">")){
+            redirect();
+        }
+        else if(commandName.equals(">>")){
+            redirectIfExist();
+        }
+        else if(commandName.equals("history")){
+            history();
+        }
+        else {
+            System.out.println("Command not found.");
+        }
+
+        commandsHistory.add(parser.getInput()) ;
+    }
+
+    public String getCurrentDirectory() {
+        return currentDirectory;
     }
 }
