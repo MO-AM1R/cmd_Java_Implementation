@@ -43,6 +43,7 @@ public class Parser {
                 commandName += " -" + argString.charAt(1);
                 argString = argString.substring(2);
             }
+
             if (argString.startsWith("\"") && argString.endsWith("\"")) {
                 args = new String[]{argString.substring(1, argString.length() - 1)};
             } else {
