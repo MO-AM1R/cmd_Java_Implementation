@@ -153,11 +153,16 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code history} will print the history of commands reversed
      *</pre>
      */
     public void history(){
-
+        StringBuilder stringBuilder = new StringBuilder() ;
+        for (String command :
+                commandsHistory) {
+            stringBuilder.append(command) ;
+        }
+        System.out.println(stringBuilder);
     }
 
     /**
@@ -218,7 +223,7 @@ public class Terminal {
             System.out.println("Command not found.");
         }
 
-        commandsHistory.add(parser.getInput()) ;
+        commandsHistory.add(parser.getInput() + '\n') ;
     }
 
     public String getCurrentDirectory() {
