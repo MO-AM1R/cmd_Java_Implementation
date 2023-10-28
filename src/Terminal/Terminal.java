@@ -3,10 +3,7 @@ import Parser.Parser ;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.FileAttribute;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *<pre>
@@ -133,14 +130,31 @@ public class Terminal {
      *This method {@code ls} will print the history of commands
      *</pre>
      */
-    public void ls(){
+    public List<String> ls(){
+        try {
+            List<String> directories = new Vector<>();
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+
+            for (Path child :
+                    directoryStream) {
+                directories.add(child.getFileName().toString() + '\n');
+            }
+
+            return directories;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     /**<pre>
      *This method {@code lsReversed} will print the history of commands reversed
      *</pre>
      */
-    public void lsReversed(){
+    public List<String> lsReversed(){
+        // reverse the list not the text
+        return ls().reversed();
     }
 
     /**<pre>
@@ -351,55 +365,33 @@ public class Terminal {
         }
         String commandName = parser.getCommandName() ;
 
-        if (commandName.equals("echo")) {
-            System.out.println(echo(parser.getArgs()));
-        } else if (commandName.equals("pwd")) {
-            System.out.println(pwd());
-        } else if (commandName.equals("cd")) {
-            cd(parser.getArgs());
-        }
-        else if (commandName.equals("ls")){
-            ls();
-        }
-        else if (commandName.equals("ls-r")){
-            lsReversed();
-        }
-        else if (commandName.equals("mkdir")){
-            mkdir(parser.getArgs());
-        }
-        else if (commandName.equals("rmdir")){
-            rmdir(parser.getArgs());
-        }
-        else if (commandName.equals("touch")){
-            touch(parser.getArgs());
-        }
-        else if (commandName.equals("cp")){
-            cp();
-        }
-        else if (commandName.equals("cp-r")){
-            cpR();
-        }
-        else if (commandName.equals("rm")){
-            rm();
-        }
-        else if (commandName.equals("cat")){
-            cat();
-        }
-        else if (commandName.equals("wc")){
-            wc();
-        }
-        else if(commandName.equals(">")){
-            redirect();
-        }
-        else if(commandName.equals(">>")){
-            redirectIfExist();
-        }
-        else if(commandName.equals("history")){
-            history();
-        } else if (commandName.equals("exit")) {
-            return ;
-        } else {
-            System.out.println("Command not found.");
+        switch (commandName) {
+            case "echo" -> System.out.println(echo(parser.getArgs()));
+            case "pwd" -> System.out.println(pwd());
+            case "cd" -> cd(parser.getArgs());
+            case "ls" -> System.out.println(ls().toString().replaceAll(", ", "").
+                    replaceAll("]", "").
+                    replaceAll("\\[", ""));
+
+            case "ls -r" -> System.out.println(lsReversed().toString().replaceAll(", ", "").
+                    replaceAll("]", "").
+                    replaceAll("\\[", ""));
+
+            case "mkdir" -> mkdir(parser.getArgs());
+            case "rmdir" -> rmdir(parser.getArgs());
+            case "touch" -> touch(parser.getArgs());
+            case "cp" -> cp();
+            case "cp-r" -> cpR();
+            case "rm" -> rm();
+            case "cat" -> cat();
+            case "wc" -> wc();
+            case ">" -> redirect();
+            case ">>" -> redirectIfExist();
+            case "history" -> history();
+            case "exit" -> {
+                return;
+            }
+            default -> System.out.println("Command not found.");
         }
 
         commandsHistory.add(parser.getInput() + '\n') ;
