@@ -2,10 +2,7 @@ package Terminal;
 import Parser.Parser ;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -191,15 +188,57 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void rm(){
+    public void rm(String... args){
+        Path dirPath;
+        dirPath = Paths.get(currentDirectory, args[0]);
 
+        try {
+            Files.delete(dirPath);
+            System.out.println("Deleted file: " + dirPath);
+        } catch (NoSuchFileException e){
+            System.err.println("File doesn't exist: ");
+        } catch (IOException e) {
+            System.err.println("Error deleting file: ");
+        }
     }
 
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void cat(){
+    public void cat(String... args){
+        Path dirPath1;
+        dirPath1 = Paths.get(currentDirectory, args[0]);
+        if(args.length == 2){
+            Path dirPath2;
+            dirPath2 = Paths.get(currentDirectory, args[1]);
+            try {
+                List<String> lines = Files.readAllLines(dirPath1);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+                lines = Files.readAllLines(dirPath2);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            } catch (NoSuchFileException e){
+                System.err.println("File doesn't exist: ");
+            } catch (IOException e) {
+                System.err.println("Error reading file: ");
+            }
+        }
+        else {
+            try {
+                List<String> lines = Files.readAllLines(dirPath1);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            } catch (NoSuchFileException e) {
+                System.err.println("File doesn't exist: ");
+            } catch (IOException e) {
+                System.err.println("Error reading file: ");
+            }
+        }
 
     }
 
@@ -272,10 +311,10 @@ public class Terminal {
             cpR();
         }
         else if (commandName.equals("rm")){
-            rm();
+            rm(parser.getArgs());
         }
         else if (commandName.equals("cat")){
-            cat();
+            cat(parser.getArgs());
         }
         else if (commandName.equals("wc")){
             wc();
