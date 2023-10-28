@@ -1,6 +1,8 @@
 package Terminal;
 import Parser.Parser ;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -146,8 +148,8 @@ public class Terminal {
 
             return directories;
         }
-        catch (Exception e){
-            e.printStackTrace();
+        catch (IOException ioException){
+            System.out.println("Something wrong happened");
             return new ArrayList<>();
         }
     }
@@ -325,11 +327,39 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code wc} will print the number of lines, words, characters
+     *and name in the file
      *</pre>
+     *<blockquote>
+     * @param args
+     *          <strong style="color:'white'">the name of the file</strong>
+     *</blockquote>
      */
     public void wc(String[] args){
+        Path path = Paths.get(currentDirectory, args[0]) ;
 
+        try {
+            if (Files.exists(path)) {
+                FileReader fileReader = new FileReader(path.toString());
+                Scanner scanner = new Scanner(fileReader) ;
+                int lines = 0, words = 0, character = 0;
+
+                while (scanner.hasNextLine()){
+                    String line = scanner.nextLine() ;
+                    character += line.length() ;
+                    words += line.split("\\s+").length ;
+                    ++lines ;
+                }
+                System.out.println(lines + " " + words + " " + character + " " + path.getFileName().toString());
+                fileReader.close();
+            }
+            else{
+                System.out.println("the file doesn't exit");
+            }
+        }
+        catch (Exception exception){
+            System.out.println("the file doesn't exit");
+        }
     }
 
     /**<pre>
