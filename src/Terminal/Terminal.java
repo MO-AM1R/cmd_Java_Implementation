@@ -1,6 +1,9 @@
 package Terminal;
 import Parser.Parser ;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -28,6 +31,16 @@ public class Terminal {
     public void setParser(Parser parser){
         this.parser = parser ;
     }
+
+
+
+
+    /**
+     *<pre>
+     *This method {@code echo} will print the arguments
+     *</pre>
+     * @return string <strong style="color:'white'">represent the current path</strong>
+     */
 
     public String echo(String[] args){
         StringBuilder output = new StringBuilder();
@@ -108,7 +121,23 @@ public class Terminal {
      *This method {@code mkdir} will print the history of commands reversed
      *</pre>
      */
-    public void mkdir(){
+    public void mkdir(String... directories) {
+        for (String dir : directories) {
+            Path dirPath;
+            if (dir.contains("/") || dir.contains("\\")) {
+                dirPath = Paths.get(dir);
+            } else {
+                dirPath = Paths.get(currentDirectory, dir);
+            }
+            try {
+                Files.createDirectories(dirPath);
+                System.out.println("Created directory: " + dirPath);
+            } catch (FileAlreadyExistsException e) {
+                System.err.println("Directory already exists: " + dirPath);
+            } catch (IOException e) {
+                System.err.println("Error creating directory: " + dirPath);
+            }
+        }
 
     }
 
@@ -116,7 +145,7 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void rmdir(){
+    public void rmdir(String... args){
 
     }
 
@@ -124,7 +153,21 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void touch(){
+    public void touch(String... args){
+        Path dirPath;
+        if (args[0].contains("/") || args[0].contains("\\")) {
+            dirPath = Paths.get(args[0]);
+        } else {
+            dirPath = Paths.get(currentDirectory, args);
+        }
+        try {
+            Files.createFile(dirPath);
+            System.out.println("Created file: " + dirPath);
+        } catch (FileAlreadyExistsException e) {
+            System.err.println("File already exists: " + dirPath);
+        } catch (IOException e) {
+            System.err.println("Error creating file: " + dirPath);
+        }
 
     }
 
@@ -214,13 +257,13 @@ public class Terminal {
             lsReversed();
         }
         else if (commandName.equals("mkdir")){
-            mkdir();
+            mkdir(parser.getArgs());
         }
         else if (commandName.equals("rmdir")){
-            rmdir();
+
         }
         else if (commandName.equals("touch")){
-            touch();
+            touch(parser.getArgs());
         }
         else if (commandName.equals("cp")){
             cp();
