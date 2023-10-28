@@ -127,8 +127,12 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code ls} will print the history of commands
+     *This method {@code ls} will print the directories of mt directory
+     *it return it sorted alphabetically
      *</pre>
+     * <blockquote>
+     * @return List of String <strong style="color: 'white'"> represent the directories</strong>
+     * </blockquote>
      */
     public List<String> ls(){
         try {
@@ -149,8 +153,12 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code lsReversed} will print the history of commands reversed
+     *This method {@code lsReversed} will print the directories of mt directory
+     *it return it reversed
      *</pre>
+     * <blockquote>
+     * @return List of String <strong style="color: 'white'"> represent the directories</strong>
+     * </blockquote>
      */
     public List<String> lsReversed(){
         // reverse the list not the text
@@ -246,7 +254,7 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code rmdir} will create a new file
+     *This method {@code touch} will create a new file
      *in the passed directory
      *user can write a specific extension
      *</pre>
@@ -320,7 +328,7 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void wc(){
+    public void wc(String[] args){
 
     }
 
@@ -384,7 +392,7 @@ public class Terminal {
             case "cp-r" -> cpR();
             case "rm" -> rm();
             case "cat" -> cat();
-            case "wc" -> wc();
+            case "wc" -> wc(parser.getArgs());
             case ">" -> redirect();
             case ">>" -> redirectIfExist();
             case "history" -> history();
