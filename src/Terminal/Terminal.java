@@ -311,11 +311,30 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code rm} will remove file in the directory
      *</pre>
+     *<blockquote>
+     * @param args
+     *          <strong style="color:'white'">it represent the file name</strong>
+     *</blockquote>
      */
-    public void rm(){
+    public void rm(String[] args){
+        if (args.length == 1){
+            try{
+                String argument = args[0];
+                Path path = Paths.get(currentDirectory, argument);
 
+                if (Files.exists(path)){
+                    Files.delete(path);
+                }
+            }
+            catch (Exception exception){
+                System.out.println("file doesn't exist");
+            }
+        }
+        else{
+            System.out.println("incorrect command line");
+        }
     }
 
     /**<pre>
@@ -420,7 +439,7 @@ public class Terminal {
             case "touch" -> touch(parser.getArgs());
             case "cp" -> cp();
             case "cp-r" -> cpR();
-            case "rm" -> rm();
+            case "rm" -> rm(parser.getArgs());
             case "cat" -> cat();
             case "wc" -> wc(parser.getArgs());
             case ">" -> redirect();
