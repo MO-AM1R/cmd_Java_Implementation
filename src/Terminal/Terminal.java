@@ -1,11 +1,11 @@
 package Terminal;
 import Parser.Parser ;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 /**
  *<pre>
@@ -73,7 +73,7 @@ public class Terminal {
 
     public void cd(String[] args){
         if (args.length == 0) {
-            currentDirectory = "C:\\Users\\Malik\\Desktop";
+            currentDirectory = System.getProperty("user.home");
         } else if (args.length == 1) {
             String target = args[0];
             target = target.replaceAll("\"", "") ;
@@ -88,13 +88,22 @@ public class Terminal {
                 }
             } else {
                 Path newPath = Paths.get(target);
-                if (newPath.isAbsolute()) {
-                    currentDirectory = newPath.toString();
-                } else {
-                    Path path = Paths.get(currentDirectory, target);
-                    currentDirectory = path.toString();
+                    if (newPath.isAbsolute()) {
+                        if(Files.exists(newPath) && Files.isDirectory(newPath)) {
+                            currentDirectory = newPath.toString();
+                        }else{
+                            System.out.println("Directory not found.");
+                        }
+                    } else{
+                        if(Files.isDirectory(Paths.get(currentDirectory, target)) && Files.exists(Paths.get(currentDirectory, target))){
+                        Path path = Paths.get(currentDirectory, target);
+                        currentDirectory = path.toString();
+                        }
+                       else{
+                            System.out.println("Directory not found.");
+                        }
+                    }
                 }
-            }
         } else {
             System.out.println("Usage: cd directory path or ..");
         }
@@ -104,14 +113,25 @@ public class Terminal {
      *This method {@code ls} will print the history of commands
      *</pre>
      */
-    public void ls(){
+    public List<String> ls(){
+        List<String> pathList = new Vector<>();
+        try {
+            DirectoryStream<Path> file = Files.newDirectoryStream(Paths.get(currentDirectory));
+            for (Path path : file) {
+                pathList.add(path.getFileName().toString());
+            }
+        } catch (IOException e) {
+            System.err.println("Error listing directory: " + currentDirectory);
+        }
+        return pathList;
     }
 
     /**<pre>
      *This method {@code lsReversed} will print the history of commands reversed
      *</pre>
      */
-    public void lsReversed(){
+    public List<String> lsReversed(){
+       return ls().reversed() ;
     }
 
     /**<pre>
@@ -142,9 +162,9 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void rmdir(String... args){
+    public void rmdir(String... args) throws IOException {
 
-    }
+        }
 
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
@@ -172,15 +192,31 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void cp(){
+    public void cp(String... args){
+        Path dirPath1, dirPath2;
+        if(args[0].contains("/") || args[0].contains("\\")){
+            dirPath1 = Paths.get(args[0]);
+            dirPath2 = Paths.get(args[1]);
+        } else {
+            dirPath1 = Paths.get(currentDirectory, args[0]);
+            dirPath2 = Paths.get(currentDirectory, args[1]);
+        }
+        try {
 
+            Files.write(dirPath2,Files.readAllLines(dirPath1), StandardOpenOption.APPEND);
+            System.out.println("Copied file: " + dirPath1 + " to " + dirPath2);
+        } catch (FileAlreadyExistsException e) {
+            System.err.println("File already exists: " + dirPath2);
+        } catch (IOException e) {
+            System.err.println("Error copying file: " + dirPath1);
+        }
     }
 
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void cpR(){
+    public void cpR(String... args){
 
     }
 
@@ -271,7 +307,9 @@ public class Terminal {
      *</pre>
      */
     public void history(){
-
+        for (int i = 0; i < commandsHistory.size(); i++) {
+            System.out.println(i + 1 + " " + commandsHistory.get(i));
+        }
     }
 
     /**
@@ -290,10 +328,14 @@ public class Terminal {
             cd(parser.getArgs());
         }
         else if (commandName.equals("ls")){
-            ls();
+            for (String s : ls()) {
+                System.out.println(s);
+            }
         }
-        else if (commandName.equals("ls-r")){
-            lsReversed();
+        else if (commandName.equals("ls -r")){
+            for (String s : lsReversed()) {
+                System.out.println(s);
+            }
         }
         else if (commandName.equals("mkdir")){
             mkdir(parser.getArgs());
@@ -305,10 +347,10 @@ public class Terminal {
             touch(parser.getArgs());
         }
         else if (commandName.equals("cp")){
-            cp();
+            cp(parser.getArgs());
         }
-        else if (commandName.equals("cp-r")){
-            cpR();
+        else if (commandName.equals("cp -r")){
+            cpR(parser.getArgs());
         }
         else if (commandName.equals("rm")){
             rm(parser.getArgs());
