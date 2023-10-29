@@ -1,9 +1,13 @@
 package Terminal;
 import Parser.Parser ;
+import jdk.jshell.execution.Util;
 
+import javax.swing.text.Utilities;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  *<pre>
@@ -302,29 +306,22 @@ public class Terminal {
      *</blockquote>
      */
     public void cp(String[] args){
-        FileInputStream inputFile = null;
-        FileOutputStream outputFile = null;
         try {
-            System.out.println(Arrays.toString(args));
             if (args.length == 2){
+                Path firstPath, secondPath ;
+
                 if (Paths.get(args[0]).isAbsolute()){
-                    inputFile = new FileInputStream(Paths.get(args[0]).toString()) ;
+                    firstPath = Paths.get(args[0]) ;
+                }else{
+                    firstPath = Paths.get(currentDirectory, args[0]) ;
                 }
-                else{
-                    inputFile = new FileInputStream(Paths.get(currentDirectory, args[0]).toString()) ;
-                }
-
                 if (Paths.get(args[1]).isAbsolute()){
-                    outputFile = new FileOutputStream(Paths.get(args[1]).toString()) ;
-                }
-                else{
-                    outputFile = new FileOutputStream(Paths.get(currentDirectory, args[1]).toString()) ;
+                    secondPath = Paths.get(args[1]) ;
+                } else{
+                    secondPath = Paths.get(currentDirectory, args[1]) ;
                 }
 
-                int i ;
-                while ((i = inputFile.read()) != -1){
-                    outputFile.write(i);
-                }
+                Files.copy(firstPath, secondPath, REPLACE_EXISTING) ;
             }
             else{
                 System.out.println("file names incorrect");
@@ -332,19 +329,6 @@ public class Terminal {
         }
         catch (Exception exception){
             System.out.println("file names incorrect");
-        }
-        finally {
-            try {
-                if (inputFile != null) {
-                    inputFile.close();
-                }
-                if (outputFile != null) {
-                    outputFile.close();
-                }
-            }
-            catch (Exception exception){
-                System.out.println("field to copy the file");
-            }
         }
     }
 
