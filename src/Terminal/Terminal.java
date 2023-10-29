@@ -225,7 +225,7 @@ public class Terminal {
                 if (argument.equals("*")) {
                     DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
                     for (Path child : directoryStream) {
-                        if (!Files.newDirectoryStream(child).iterator().hasNext()) {
+                        if (Files.isDirectory(child) && !Files.newDirectoryStream(child).iterator().hasNext()) {
                             Files.delete(child);
                         }
                     }
