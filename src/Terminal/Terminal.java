@@ -1,9 +1,7 @@
 package Terminal;
 import Parser.Parser ;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
@@ -184,6 +182,7 @@ public class Terminal {
 
         for (String argument :
                 args) {
+            System.out.println(argument);
             Path path = Paths.get(argument) ;
 
             if (path.isAbsolute()){
@@ -295,18 +294,65 @@ public class Terminal {
 
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code cp} will copy the content of the file
+     *to another file in the same directory
      *</pre>
+     *<blockquote>
+     * @param args <strong style="color:'white'"> represent the file names or the directories of them</strong>
+     *</blockquote>
      */
-    public void cp(){
+    public void cp(String[] args){
+        FileInputStream inputFile = null;
+        FileOutputStream outputFile = null;
+        try {
+            System.out.println(Arrays.toString(args));
+            if (args.length == 2){
+                if (Paths.get(args[0]).isAbsolute()){
+                    inputFile = new FileInputStream(Paths.get(args[0]).toString()) ;
+                }
+                else{
+                    inputFile = new FileInputStream(Paths.get(currentDirectory, args[0]).toString()) ;
+                }
 
+                if (Paths.get(args[1]).isAbsolute()){
+                    outputFile = new FileOutputStream(Paths.get(args[1]).toString()) ;
+                }
+                else{
+                    outputFile = new FileOutputStream(Paths.get(currentDirectory, args[1]).toString()) ;
+                }
+
+                int i ;
+                while ((i = inputFile.read()) != -1){
+                    outputFile.write(i);
+                }
+            }
+            else{
+                System.out.println("file names incorrect");
+            }
+        }
+        catch (Exception exception){
+            System.out.println("file names incorrect");
+        }
+        finally {
+            try {
+                if (inputFile != null) {
+                    inputFile.close();
+                }
+                if (outputFile != null) {
+                    outputFile.close();
+                }
+            }
+            catch (Exception exception){
+                System.out.println("field to copy the file");
+            }
+        }
     }
 
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void cpR(){
+    public void cpR(String[] arg){
 
     }
 
@@ -437,8 +483,8 @@ public class Terminal {
             case "mkdir" -> mkdir(parser.getArgs());
             case "rmdir" -> rmdir(parser.getArgs());
             case "touch" -> touch(parser.getArgs());
-            case "cp" -> cp();
-            case "cp-r" -> cpR();
+            case "cp" -> cp(parser.getArgs());
+            case "cp-r" -> cpR(parser.getArgs());
             case "rm" -> rm(parser.getArgs());
             case "cat" -> cat();
             case "wc" -> wc(parser.getArgs());
