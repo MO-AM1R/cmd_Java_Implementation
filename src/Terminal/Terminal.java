@@ -131,7 +131,7 @@ public class Terminal {
      *</pre>
      */
     public List<String> lsReversed(){
-       return ls().reversed() ;
+       return ls() ;
     }
 
     /**<pre>
@@ -162,9 +162,43 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void rmdir(String... args) throws IOException {
+    public void rmdir(String[] args){
+        if (args.length == 1){
+            String argument = args[0] ;
 
+            try{
+                if (argument.equals("*")) {
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+                    for (Path child : directoryStream) {
+                        if (Files.isDirectory(child) && !Files.newDirectoryStream(child).iterator().hasNext()) {
+                            Files.delete(child);
+                        }
+                    }
+
+                    directoryStream.close();
+                } else {
+                    Path path = Paths.get(argument);
+                    if (!path.isAbsolute()) {
+                        path = Paths.get(currentDirectory, argument).normalize();
+                    }
+
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+                    if (!directoryStream.iterator().hasNext()) {
+                        Files.delete(path);
+                    }
+
+                    directoryStream.close();
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                System.out.println("cannot find the directory");
+            }
         }
+        else{
+            System.out.println("incorrect command line");
+        }
+    }
 
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
@@ -282,7 +316,26 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void wc(){
+    public void wc(String... args){
+        try{
+            int linecount = 0;
+            int wordcount = 0;
+            int charcount = 0;
+            Path dirPath;
+            dirPath = Paths.get(currentDirectory, args[0]);
+            List<String> lines = Files.readAllLines(dirPath);
+            for (String line : lines) {
+                linecount++;
+                charcount += line.length();
+                String[] words = line.split("\\s+");
+                wordcount += words.length;
+            }
+            System.out.println("lines: " + linecount + " words: " + wordcount + " characters: " + charcount);
+        } catch (NoSuchFileException e){
+            System.err.println("File doesn't exist: ");
+        } catch (IOException e) {
+            System.err.println("Error reading file: ");
+        }
 
     }
 
@@ -291,6 +344,7 @@ public class Terminal {
      *</pre>
      */
     public void redirect(){
+
 
     }
 
@@ -341,7 +395,7 @@ public class Terminal {
             mkdir(parser.getArgs());
         }
         else if (commandName.equals("rmdir")){
-
+            rmdir( parser.getArgs());
         }
         else if (commandName.equals("touch")){
             touch(parser.getArgs());
@@ -359,7 +413,7 @@ public class Terminal {
             cat(parser.getArgs());
         }
         else if (commandName.equals("wc")){
-            wc();
+            wc(parser.getArgs());
         }
         else if(commandName.equals(">")){
             redirect();
