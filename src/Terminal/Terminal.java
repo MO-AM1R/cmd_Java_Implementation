@@ -11,7 +11,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.3</strong>
+ * @version <strong style="color:'white'">1.4</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -616,7 +616,13 @@ public class Terminal {
                 System.out.println("Command not found.");
                 return;
             }
+            String[] nonArgumentCommands = {"pwd", "ls", "ls -r", "history"};
             String commandName = parser.getCommandName();
+            if (Arrays.stream(nonArgumentCommands).toList().contains(commandName)
+                    && parser.getArgs().length > 0){
+                System.out.println("Command not found.");
+                return;
+            }
 
             switch (commandName) {
                 case "echo" -> System.out.println(echo(parser.getArgs()));
