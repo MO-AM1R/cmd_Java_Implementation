@@ -1,4 +1,5 @@
 package Parser;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -8,7 +9,7 @@ import java.util.Vector;
  *extract the command and it's arguments
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.2</strong>
+ * @version <strong style="color:'white'">1.3</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -18,6 +19,7 @@ public class Parser {
     String commandName;
     String[] args;
     String input ;
+    String redirectCommandName ;
 
     /**
      *<pre>
@@ -72,6 +74,20 @@ public class Parser {
 
                 args = new String[arguments.size()] ;
                 args = arguments.toArray(new String[0]);
+
+                if (Arrays.stream(args).toList().contains(">") ||
+                        Arrays.stream(args).toList().contains(">>")){
+                    redirectCommandName = commandName ;
+                    commandName = ">" ;
+                    // here remove the '>' from args
+                    if (Arrays.stream(args).toList().contains(">>")){
+                        // here remove the second '>' from args
+                        commandName = ">>" ;
+                    }
+                    List<String> argsList = new Vector<>(List.of(args));
+                    argsList.remove(commandName);
+                    args = argsList.toArray(new String[0]);
+                }
             } else {
                 args = new String[0];
             }
@@ -112,5 +128,9 @@ public class Parser {
 
     public void setInput(String input) {
         this.input = input ;
+    }
+
+    public String getRedirectCommandName() {
+        return redirectCommandName ;
     }
 }
