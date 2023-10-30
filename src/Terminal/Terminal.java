@@ -11,7 +11,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.2</strong>
+ * @version <strong style="color:'white'">1.3</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -247,15 +247,6 @@ public class Terminal {
      *in the passed directory
      *user can write a specific extension
      *</pre>
-     *<blockquote>
-     *@param args
-     *      <strong style="color:'white'">
-     *          it can be relative or short path
-     *          represent the directory which will create into
-     *          new file
-     *      </strong>
-     *@throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
      */
     public void touch(String[] args) throws IOException {
         if (args.length == 1){
