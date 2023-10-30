@@ -445,6 +445,7 @@ public class Terminal {
         while (scanner.hasNext()){
             content.append(scanner.nextLine()).append('\n') ;
         }
+        scanner.close();
         return content.toString();
     }
 
