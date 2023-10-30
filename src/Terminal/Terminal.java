@@ -329,11 +329,77 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code copyDirectories} will copy the first file with all it's content
+     *to the second file recursively
      *</pre>
+     *<blockquote>
+     * @param src <strong style="color:'white'"> represent the source file</strong>
+     * @param dest <strong style="color:'white'"> represent the destination file</strong>
+     *</blockquote>
      */
-    public void cpR(String[] arg){
+    private void copyDirectories(File src, File dest) {
+        if (dest.isDirectory()){
+            if (!dest.exists()) {
+                if (!dest.mkdir()){
+                    System.out.println("cannot copy the directories");
+                    return;
+                }
+            }
 
+            String[] list = src.list();
+            assert list != null;
+
+            for (String child :
+                    list) {
+                File srcChild = new File(src, child);
+                File destChild = new File(dest, child);
+
+                copyDirectories(srcChild, destChild);
+            }
+        }
+        else{
+            cp(new String[]{src.toPath().toString(), dest.toPath().toString()});
+        }
+    }
+
+    /**<pre>
+     *This method {@code cpR} will copy the first file with all it's content
+     *to the second file
+     *</pre>
+     *<blockquote>
+     * @param args <strong style="color:'white'"> represent the paths of the files</strong>
+     *</blockquote>
+     */
+    public void cpR(String[] args){
+        try {
+            if (args.length == 2){
+                Path firstPath, secondPath ;
+
+                if (Paths.get(args[0]).isAbsolute()){
+                    firstPath = Paths.get(args[0]) ;
+                }else{
+                    firstPath = Paths.get(currentDirectory, args[0]) ;
+                }
+                if (Paths.get(args[1]).isAbsolute()){
+                    secondPath = Paths.get(args[1]) ;
+                } else{
+                    secondPath = Paths.get(currentDirectory, args[1]) ;
+                }
+                if (Files.isDirectory(firstPath) && Files.isDirectory(secondPath)) {
+                    File destination = new File(Paths.get(secondPath.toString(), firstPath.getFileName().toString()).toString()) ;
+                    if (!destination.exists()){
+                        if (destination.mkdir()){
+                            copyDirectories(new File(firstPath.toString()), destination) ;
+                            return;
+                        }
+                    }
+                }
+            }
+            System.out.println("directory names incorrect");
+        }
+        catch (Exception exception){
+            System.out.println("directory names incorrect");
+        }
     }
 
     /**<pre>
@@ -464,7 +530,7 @@ public class Terminal {
             case "rmdir" -> rmdir(parser.getArgs());
             case "touch" -> touch(parser.getArgs());
             case "cp" -> cp(parser.getArgs());
-            case "cp-r" -> cpR(parser.getArgs());
+            case "cp -r" -> cpR(parser.getArgs());
             case "rm" -> rm(parser.getArgs());
             case "cat" -> cat();
             case "wc" -> wc(parser.getArgs());
