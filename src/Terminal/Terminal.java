@@ -317,11 +317,12 @@ public class Terminal {
                     secondPath = Paths.get(currentDirectory, args[1]) ;
                 }
 
-                Files.copy(firstPath, secondPath, REPLACE_EXISTING) ;
+                if (Files.exists(firstPath) && Files.exists(secondPath)){
+                    Files.copy(firstPath, secondPath, REPLACE_EXISTING) ;
+                    return;
+                }
             }
-            else{
-                System.out.println("file names incorrect");
-            }
+            System.out.println("file names incorrect");
         }
         catch (Exception exception){
             System.out.println("file names incorrect");
@@ -429,12 +430,66 @@ public class Terminal {
         }
     }
 
-    /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+    /**
+     *<pre>
+     *This method {@code cat} will take 1 argument and return the file’s content
      *</pre>
+     * @param file <strong style="color:'white'"> represent the file which return content</strong>
+     * @return String <strong style="color:'white'"> represent the file content</strong>
+     * @throws FileNotFoundException <strong style="color:'white'"> if the file not exit</strong>
      */
-    public void cat(){
+    private String printFileContent(File file) throws FileNotFoundException {
+        StringBuilder content = new StringBuilder();
+        Scanner scanner = new Scanner(file);
 
+        while (scanner.hasNext()){
+            content.append(scanner.nextLine()).append('\n') ;
+        }
+        return content.toString();
+    }
+
+    /**
+     *<pre>
+     *This method {@code cat} will take 1 argument and prints the file’s content or takes 2
+     *arguments and concatenates the content of the 2 files and prints it.
+     *</pre>
+     *<blockquote>
+     * @param args <strong style="color:'white'"> represent the file name\s</strong>
+     *</blockquote>
+     */
+    public void cat(String[] args){
+        try {
+            if (args.length == 1) {
+                Path firstPath;
+                if (Paths.get(args[0]).isAbsolute()) {
+                    firstPath = Paths.get(args[0]);
+                } else {
+                    firstPath = Paths.get(currentDirectory, args[0]);
+                }
+
+                System.out.println(printFileContent(new File(firstPath.toString())));
+            } else if (args.length == 2) {
+                Path firstPath, secondPath;
+                if (Paths.get(args[0]).isAbsolute()) {
+                    firstPath = Paths.get(args[0]);
+                } else {
+                    firstPath = Paths.get(currentDirectory, args[0]);
+                }
+                if (Paths.get(args[1]).isAbsolute()) {
+                    secondPath = Paths.get(args[1]);
+                } else {
+                    secondPath = Paths.get(currentDirectory, args[1]);
+                }
+
+                System.out.println(printFileContent(new File(firstPath.toString())) +
+                        printFileContent(new File(secondPath.toString())));
+            } else {
+                System.out.println("incorrect command line");
+            }
+        }
+        catch (Exception exception){
+            System.out.println("files doesn't exist");
+        }
     }
 
     /**<pre>
@@ -532,7 +587,7 @@ public class Terminal {
             case "cp" -> cp(parser.getArgs());
             case "cp -r" -> cpR(parser.getArgs());
             case "rm" -> rm(parser.getArgs());
-            case "cat" -> cat();
+            case "cat" -> cat(parser.getArgs());
             case "wc" -> wc(parser.getArgs());
             case ">" -> redirect();
             case ">>" -> redirectIfExist();
