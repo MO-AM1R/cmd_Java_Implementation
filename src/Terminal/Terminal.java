@@ -1,5 +1,7 @@
 package Terminal;
 import Parser.Parser ;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.1</strong>
+ * @version <strong style="color:'white'">1.2</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -106,6 +108,12 @@ public class Terminal {
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
+    private void copyDirectories(File src, File dest) {}
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
     public void cpR(){
 
     }
@@ -116,6 +124,14 @@ public class Terminal {
      */
     public void rm(){
 
+    }
+
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
+     *</pre>
+     */
+    private String printFileContent(File file) throws FileNotFoundException {
+        return null;
     }
 
     /**<pre>
