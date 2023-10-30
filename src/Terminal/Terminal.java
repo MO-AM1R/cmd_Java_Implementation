@@ -24,6 +24,19 @@ public class Terminal {
     String currentDirectory = System.getProperty("user.dir");
     List<String> commandsHistory = new LinkedList<>();
 
+
+    /**
+     *<pre>
+     *This method {@code getCurrentDirectory} return {@code currentDirectory}
+     *</pre>
+     *<blockquote>
+     * @return String <strong style="color:'white'"> represent the current directory</strong>
+     *</blockquote>
+     */
+    public String getCurrentDirectory() {
+        return currentDirectory;
+    }
+
     /**
      *<pre>
      *This setter {@code setParse} it set the parser to {@code parser}
@@ -39,8 +52,8 @@ public class Terminal {
      *This method {@code echo} will print the arguments {@code args}
      *</pre>
      * <blockquote>
-     * @param args <strong style="color:'white'">the arguments which will print</strong>
-     * @return string <strong style="color:'white'">the text which print</strong>
+     * @param args <strong style="color:'white'"> the arguments which will print</strong>
+     * @return string <strong style="color:'white'"> the text which print</strong>
      * </blockquote>
      */
     public String echo(String[] args){
@@ -58,7 +71,7 @@ public class Terminal {
      *This method {@code pwd} will get the current path
      *</pre>
      * <blockquote>
-     *     @return string <strong style="color:'white'">represent the current path</strong>
+     *     @return string <strong style="color:'white'"> represent the current path</strong>
      * </blockquote>
      */
     public String pwd(){
@@ -247,6 +260,7 @@ public class Terminal {
      *in the passed directory
      *user can write a specific extension
      *</pre>
+     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
      */
     public void touch(String[] args) throws IOException {
         if (args.length == 1){
@@ -420,9 +434,10 @@ public class Terminal {
      *<blockquote>
      * @param args <strong style="color:'white'"> represent the file name\s</strong>
      * @throws FileNotFoundException <strong style="color:'white'"> if the file not exit</strong>
+     * @return String <strong style="color:'white'"> represent the content of the process</strong>
      *</blockquote>
      */
-    public void cat(String[] args) throws FileNotFoundException {
+    public String cat(String[] args) throws FileNotFoundException {
         if (args.length == 1) {
             Path firstPath;
             if (Paths.get(args[0]).isAbsolute()) {
@@ -431,7 +446,7 @@ public class Terminal {
                 firstPath = Paths.get(currentDirectory, args[0]);
             }
 
-            System.out.println(printFileContent(new File(firstPath.toString())));
+            return (printFileContent(new File(firstPath.toString())));
         } else if (args.length == 2) {
             Path firstPath, secondPath;
             if (Paths.get(args[0]).isAbsolute()) {
@@ -445,10 +460,11 @@ public class Terminal {
                 secondPath = Paths.get(currentDirectory, args[1]);
             }
 
-            System.out.println(printFileContent(new File(firstPath.toString())) +
+            return (printFileContent(new File(firstPath.toString())) +
                     printFileContent(new File(secondPath.toString())));
         } else {
             System.out.println("incorrect command line");
+            return "" ;
         }
     }
 
@@ -459,10 +475,17 @@ public class Terminal {
      *<blockquote>
      * @param args <strong style="color:'white'"> the name of the file</strong>
      * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
+     * @return String <strong style="color:'white'"> represent the information of the file</strong>
      *</blockquote>
      */
-    public void wc(String[] args) throws IOException {
-        Path path = Paths.get(currentDirectory, args[0]) ;
+    public String wc(String[] args) throws IOException {
+        Path path ;
+        if (Paths.get(args[0]).isAbsolute()){
+            path = Paths.get(args[0]) ;
+        }
+        else{
+            path = Paths.get(currentDirectory, args[0]) ;
+        }
 
         if (Files.exists(path)) {
             FileReader fileReader = new FileReader(path.toString());
@@ -475,41 +498,111 @@ public class Terminal {
                 words += line.split("\\s+").length ;
                 ++lines ;
             }
-            System.out.println(lines + " " + words + " " + character + " " + path.getFileName().toString());
             fileReader.close();
+            return (lines + " " + words + " " + character + " " + path.getFileName().toString());
         }
         else{
             System.out.println("the file doesn't exit");
+            return "" ;
         }
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code handleRedirection} will call the command function
+     *then call {@code redirect} function to fill the file
      *</pre>
+     *<blockquote>
+     * @param commandName <strong style="color:'white'"> represent the command which run</strong>
+     * @param args <strong style="color:'white'"> represent the all arguments</strong>
+     * @param ifShouldExist <strong style="color:'white'"> represent the case of file can create one or not</strong>
+     *</blockquote>
      */
-    public void redirect(){
+    private void handleRedirection(String commandName, String[] args, boolean ifShouldExist) {
+        try {
+            String file = args[args.length - 1];
+            String[] arguments = Arrays.stream(args).toList().subList(0, args.length - 1).toArray(new String[0]);
 
+            switch (commandName) {
+                case "echo" -> redirect(echo(arguments), file, ifShouldExist);
+                case "pwd" -> redirect(pwd(), file, ifShouldExist);
+                case "ls" -> redirect(ls().toString().replaceAll(", ", "").
+                        replaceAll("]", "").
+                        replaceAll("\\[", ""), file, ifShouldExist);
+
+                case "ls -r" -> redirect(lsReversed().toString().replaceAll(", ", "").
+                        replaceAll("]", "").
+                        replaceAll("\\[", ""), file, ifShouldExist);
+
+                case "cat" -> redirect(cat(arguments), file, ifShouldExist);
+                case "wc" -> redirect(wc(arguments), file, ifShouldExist);
+                case "history" -> redirect(history(), file, ifShouldExist);
+
+                default -> System.out.println("Command not found.");
+            }
+        }
+        catch (Exception exception){
+            System.out.println("Command not found.");
+        }
     }
 
     /**<pre>
-     *This method {@code rmdir} will print the history of commands reversed
+     *This method {@code redirect} it contains two cases
+     *  1- if {@code ifShouldExist = true} so it must be the file created
+     *      if not the method will show error to user
+     *  2- if {@code ifShouldExist = false} so it must not be the file created
+     *      if not the method will create one
      *</pre>
+     *<blockquote>
+     * @param content <strong style="color:'white'"> represent the content which put in the {@code file}</strong>
+     * @param file <strong style="color:'white'"> represent the file which will put into the {@code content}</strong>
+     * @param ifShouldExist <strong style="color:'white'"> represent the case of file</strong>
+     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
+     *</blockquote>
      */
-    public void redirectIfExist(){
+    public void redirect(String content, String file, boolean ifShouldExist) throws IOException {
+        File outputFile;
+        if (Paths.get(file).isAbsolute()){
+            outputFile = new File(file) ;
+        }
+        else{
+            outputFile = new File(Paths.get(currentDirectory, file).toString()) ;
+        }
 
+        if (ifShouldExist){
+            if (!Files.exists(outputFile.toPath())) {
+                System.out.println("file doesn't exist");
+                return;
+            }
+        }
+        else{
+            if (!Files.exists(outputFile.toPath())){
+                if(!outputFile.createNewFile()){
+                    System.out.println("file cannot create");
+                    return;
+                }
+            }
+        }
+
+        PrintWriter printWriter = new PrintWriter(outputFile);
+        printWriter.print("");
+        printWriter.print(content);
+        printWriter.close();
     }
 
     /**<pre>
      *This method {@code history} will print the history of commands reversed
      *</pre>
+     *<blockquote>
+     * @return String <strong style="color:'white'"> represent the history of the commands</strong>
+     *</blockquote>
      */
-    public void history(){
+    public String history(){
         StringBuilder stringBuilder = new StringBuilder() ;
         for (String command :
                 commandsHistory) {
             stringBuilder.append(command) ;
         }
-        System.out.println(stringBuilder);
+        return stringBuilder.toString();
     }
 
     /**
@@ -543,11 +636,19 @@ public class Terminal {
                 case "cp" -> cp(parser.getArgs());
                 case "cp -r" -> cpR(parser.getArgs());
                 case "rm" -> rm(parser.getArgs());
-                case "cat" -> cat(parser.getArgs());
-                case "wc" -> wc(parser.getArgs());
-                case ">" -> redirect();
-                case ">>" -> redirectIfExist();
-                case "history" -> history();
+                case "cat" -> System.out.println(cat(parser.getArgs()));
+                case "wc" -> System.out.println(wc(parser.getArgs()));
+                case ">" ->{
+                    String firstCommand = parser.getRedirectCommandName() ;
+                    String[] args = parser.getArgs() ;
+                    handleRedirection(firstCommand, args, false);
+                }
+                case ">>" -> {
+                    String firstCommand = parser.getRedirectCommandName() ;
+                    String[] args = parser.getArgs() ;
+                    handleRedirection(firstCommand, args, true);
+                }
+                case "history" -> System.out.println(history());
                 case "exit" -> {
                     return;
                 }
@@ -555,12 +656,8 @@ public class Terminal {
             }
         }
         catch (Exception exception){
-            System.out.println("Incorrect using for teh command.");
+            System.out.println("Incorrect using for the command.");
         }
         commandsHistory.add(parser.getInput() + '\n') ;
-    }
-
-    public String getCurrentDirectory() {
-        return currentDirectory;
     }
 }
