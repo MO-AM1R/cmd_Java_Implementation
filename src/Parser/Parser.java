@@ -43,6 +43,10 @@ public class Parser {
                 if (argString.charAt(0) == '-') {
                     commandName += " -" + argString.charAt(1);
                     argString = argString.substring(2);
+
+                    if (argString.charAt(0) == ' '){
+                        argString = argString.replaceFirst(" ", "") ;
+                    }
                 }
                 List<String> arguments = new Vector<>() ;
 
