@@ -1,7 +1,6 @@
 package Parser;
-
-
-import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
 /**
  *<pre>
@@ -9,7 +8,7 @@ import java.util.Arrays;
  *extract the command and it's arguments
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.1</strong>
+ * @version <strong style="color:'white'">1.2</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -45,12 +44,30 @@ public class Parser {
                     commandName += " -" + argString.charAt(1);
                     argString = argString.substring(2);
                 }
+                List<String> arguments = new Vector<>() ;
 
-                if (argString.startsWith("\"") && argString.endsWith("\"")) {
-                    args = new String[]{argString.substring(1, argString.length() - 1)};
-                } else {
-                    args = argString.split(" ");
+                while (!argString.isEmpty()){
+                    if (argString.charAt(0) == '\"'){
+                        arguments.add(argString.substring(1, argString.substring(1).indexOf("\"") + 1)) ;
+                        if (argString.substring(1).indexOf("\"") + 3 >= argString.length()){
+                            break ;
+                        }
+                        argString = argString.substring(argString.substring(1).indexOf("\"") + 3) ;
+                    }
+                    else{
+                        if (argString.contains(" ")){
+                            arguments.add(argString.substring(0, argString.indexOf(' '))) ;
+                            argString = argString.substring(argString.indexOf(" ") + 1) ;
+                        }
+                        else{
+                            arguments.add(argString) ;
+                            break;
+                        }
+                    }
                 }
+
+                args = new String[arguments.size()] ;
+                args = arguments.toArray(new String[0]);
             } else {
                 args = new String[0];
             }
