@@ -596,16 +596,8 @@ public class Terminal {
                 case "rm" -> rm(parser.getArgs());
                 case "cat" -> System.out.println(cat(parser.getArgs()));
                 case "wc" -> System.out.println(wc(parser.getArgs()));
-                case ">" ->{
-                    String firstCommand = parser.getRedirectCommandName() ;
-                    String[] args = parser.getArgs() ;
-                    handleRedirection(firstCommand, args, false);
-                }
-                case ">>" -> {
-                    String firstCommand = parser.getRedirectCommandName() ;
-                    String[] args = parser.getArgs() ;
-                    handleRedirection(firstCommand, args, true);
-                }
+                case ">" -> handleRedirection(parser.getRedirectCommandName(), parser.getArgs(), false);
+                case ">>" -> handleRedirection(parser.getRedirectCommandName(), parser.getArgs(), true);
                 case "history" -> System.out.println(history());
                 case "exit" -> {
                     return;

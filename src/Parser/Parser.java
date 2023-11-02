@@ -120,16 +120,29 @@ public class Parser {
     /**
      * This method to return the input which parsed
      *
-     * @return String <strong style="color:'white'">{@code input}</strong>
+     * @return String <strong style="color:'white'"> {@code input}</strong>
      */
     public String getInput(){
         return input;
     }
 
+    /**
+     *<pre>
+     *This method {@code setInput} it setter for input property
+     *</pre>
+     * @param input <strong style="color:'white'"> {@code the new input which will be set to input}</strong>
+     */
     public void setInput(String input) {
         this.input = input ;
     }
 
+    /**
+     *<pre>
+     *This method {@code getRedirectCommandName} it getter for getRedirectCommandName property
+     *</pre>
+     * @return redirectCommandName <strong style="color:'white'"> {@code the new redirect command
+     * which be called to redirect the output}</strong>
+     */
     public String getRedirectCommandName() {
         return redirectCommandName ;
     }
