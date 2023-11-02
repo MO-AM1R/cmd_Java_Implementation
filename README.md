@@ -1,5 +1,3 @@
-Certainly, here is the updated table of contents with each element referencing the corresponding explanation:
-
 ## Table of Contents
 1. [Introduction](#1-introduction)
 2. [Supported Commands](#2-supported-commands)
