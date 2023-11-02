@@ -246,12 +246,53 @@ public class Terminal {
         }
     }
 
+
+    private void copyDirectories(File src, File dest) throws IOException {
+        if (dest.isDirectory()){
+            if (!dest.exists()) {
+                if (!dest.mkdir()){
+                    System.out.println("cannot copy the directories");
+                    return;
+                }
+            }
+            String[] list = src.list();
+            assert list != null;
+            for (String child :
+                    list) {
+                File srcChild = new File(src, child);
+                File destChild = new File(dest, child);
+                copyDirectories(srcChild, destChild);
+            }
+        }
+        else{
+            Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+
+
     /**<pre>
      *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
-    public void cpR(String... args){
-
+    public void cpR(String... args) throws IOException {
+        Path dirPath1, dirPath2;
+        if(args[0].contains("/") || args[0].contains("\\")){
+            dirPath1 = Paths.get(args[0]);
+            dirPath2 = Paths.get(args[1]);
+        } else {
+            dirPath1 = Paths.get(currentDirectory, args[0]);
+            dirPath2 = Paths.get(currentDirectory, args[1]);
+        }
+        if(Files.isDirectory(dirPath1) && Files.isDirectory(dirPath2)){
+            File result = new File(Paths.get(dirPath2.toString(),dirPath1.getFileName().toString()).toString());
+            if(!result.exists()){
+                if(result.mkdir()) {
+                    copyDirectories(new File(dirPath1.toString()), result);
+                    return;
+                }
+            }
+        }
     }
 
     /**<pre>
@@ -371,7 +412,7 @@ public class Terminal {
      *This method {@code chooseCommandAction} will choose the suitable command method to be called
      *</pre>
      */
-    public void chooseCommandAction(){
+    public void chooseCommandAction() throws IOException {
         String commandName = parser.getCommandName() ;
 
         if (commandName.equals("echo")) {

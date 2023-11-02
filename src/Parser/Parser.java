@@ -1,5 +1,7 @@
 package Parser;
-
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
 /**
  *<pre>
@@ -7,7 +9,7 @@ package Parser;
  *extract the command and it's arguments
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.0</strong>
+ * @version <strong style="color:'white'">1.3</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -17,6 +19,7 @@ public class Parser {
     String commandName;
     String[] args;
     String input ;
+    String redirectCommandName ;
 
     /**
      *<pre>
@@ -28,31 +31,72 @@ public class Parser {
      * </blockquote>
      */
     public boolean parse(String input) {
-        this.input = input ;
+        try {
+            this.input = input;
+            if (input.isEmpty()) {
+                return false;
+            }
 
-        if (input.isEmpty()) {
+            String[] parts = input.split(" ", 2);
+            commandName = parts[0];
+
+            if (parts.length > 1) {
+                String argString = parts[1].trim();
+                if (argString.charAt(0) == '-') {
+                    commandName += " -" + argString.charAt(1);
+                    argString = argString.substring(2);
+
+                    if (argString.charAt(0) == ' '){
+                        argString = argString.replaceFirst(" ", "") ;
+                    }
+                }
+                List<String> arguments = new Vector<>() ;
+
+                while (!argString.isEmpty()){
+                    if (argString.charAt(0) == '\"'){
+                        arguments.add(argString.substring(1, argString.substring(1).indexOf("\"") + 1)) ;
+                        if (argString.substring(1).indexOf("\"") + 3 >= argString.length()){
+                            break ;
+                        }
+                        argString = argString.substring(argString.substring(1).indexOf("\"") + 3) ;
+                    }
+                    else{
+                        if (argString.contains(" ")){
+                            arguments.add(argString.substring(0, argString.indexOf(' '))) ;
+                            argString = argString.substring(argString.indexOf(" ") + 1) ;
+                        }
+                        else{
+                            arguments.add(argString) ;
+                            break;
+                        }
+                    }
+                }
+
+                args = new String[arguments.size()] ;
+                args = arguments.toArray(new String[0]);
+
+                if (Arrays.stream(args).toList().contains(">") ||
+                        Arrays.stream(args).toList().contains(">>")){
+                    redirectCommandName = commandName ;
+                    commandName = ">" ;
+                    // here remove the '>' from args
+                    if (Arrays.stream(args).toList().contains(">>")){
+                        // here remove the second '>' from args
+                        commandName = ">>" ;
+                    }
+                    List<String> argsList = new Vector<>(List.of(args));
+                    argsList.remove(commandName);
+                    args = argsList.toArray(new String[0]);
+                }
+            } else {
+                args = new String[0];
+            }
+
+            return true;
+        }
+        catch (Exception e){
             return false;
         }
-
-        String[] parts = input.split(" ", 2);
-        commandName = parts[0];
-
-        if (parts.length > 1) {
-            String argString = parts[1].trim();
-            if (argString.charAt(0) == '-') {
-                commandName += " -" + argString.charAt(1);
-                argString = argString.substring(2);
-            }
-            if (argString.startsWith("\"") && argString.endsWith("\"")) {
-                args = new String[]{argString.substring(1, argString.length() - 1)};
-            } else {
-                args = argString.split(" ");
-            }
-        } else {
-            args = new String[0];
-        }
-
-        return true;
     }
 
     /**
@@ -82,4 +126,11 @@ public class Parser {
         return input;
     }
 
+    public void setInput(String input) {
+        this.input = input ;
+    }
+
+    public String getRedirectCommandName() {
+        return redirectCommandName ;
+    }
 }
