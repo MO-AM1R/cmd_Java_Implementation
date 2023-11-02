@@ -11,7 +11,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.4</strong>
+ * @version <strong style="color:'white'">1.2</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
@@ -21,7 +21,7 @@ public class Terminal {
 
     /*Parser obj to parse the inputs*/
     Parser parser;
-    String currentDirectory = System.getProperty("user.dir");
+    Path currentDirectory = Paths.get(System.getProperty("user.dir"));
     List<String> commandsHistory = new LinkedList<>();
 
 
@@ -34,7 +34,7 @@ public class Terminal {
      *</blockquote>
      */
     public String getCurrentDirectory() {
-        return currentDirectory;
+        return currentDirectory.toString();
     }
 
     /**
@@ -45,6 +45,25 @@ public class Terminal {
      */
     public void setParser(Parser parser){
         this.parser = parser ;
+    }
+
+    /**
+     *<pre>
+     *This method {@code pathsHandle} return the correct path
+     *for the corresponding {@code path}
+     *</pre>
+     * @param path <strong style="color:'white'"> represent the path which will return correctly</strong>
+     * @return Path <strong style="color:'white'"> represent the correct path</strong>
+     */
+    public Path pathsHandle(String path){
+        final Path temp = Paths.get(path);
+
+        if (temp.isAbsolute()){
+            return temp;
+        }
+        else{
+            return Paths.get(currentDirectory.toString(), path) ;
+        }
     }
 
     /**
@@ -75,7 +94,7 @@ public class Terminal {
      * </blockquote>
      */
     public String pwd(){
-        return currentDirectory;
+        return currentDirectory.toString();
     }
 
     /**
@@ -98,36 +117,29 @@ public class Terminal {
 
     public void cd(String[] args){
         if (args.length == 0) {
-            currentDirectory = System.getProperty("user.home");
+            currentDirectory = Paths.get(System.getProperty("user.home"));
         } else if (args.length == 1) {
             String argString = args[0];
 
-            if (Objects.equals(argString, "..")) {
-                Path path = Paths.get(currentDirectory);
-                path = path.getParent();
+            if (argString.contains("..") && Objects.equals(argString, "..")) {
+                Path path = Paths.get(currentDirectory.toString()).getParent();
                 if (path == null) {
                     System.out.println("you already at home");
                     return;
                 }
-                currentDirectory = path.toString();
-            } else {
-                Path path = Paths.get(argString);
+                currentDirectory = Paths.get(path.toString());
+            } else if (!argString.contains(".")){
+                Path path = pathsHandle(argString);
 
-                if (path.isAbsolute()) {
-                    if (Files.exists(path) && Files.isDirectory(path)) {
-                        currentDirectory = path.toString();
-                    } else {
-                        System.out.println("direction is invalid");
-                    }
-                } else {
-                    if (Files.exists(Paths.get(currentDirectory, argString)) &&
-                            Files.isDirectory(Paths.get(currentDirectory, argString))) {
-                        currentDirectory = Paths.get(currentDirectory, argString).
-                                normalize().toString();
-                    } else {
-                        System.out.println("direction is invalid");
-                    }
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    currentDirectory = Paths.get(path.toString());
                 }
+                else {
+                    System.out.println("directory is invalid");
+                }
+            }
+            else{
+                System.out.println("directory is invalid");
             }
         } else {
             System.out.println("cd used incorrect");
@@ -145,7 +157,7 @@ public class Terminal {
      */
     public List<String> ls() throws IOException {
         List<String> directories = new Vector<>();
-        DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+        DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory.toString()));
 
         for (Path child :
                 directoryStream) {
@@ -166,7 +178,6 @@ public class Terminal {
      * </blockquote>
      */
     public List<String> lsReversed() throws IOException {
-        // reverse the list not the text
         return ls().reversed();
     }
 
@@ -187,22 +198,11 @@ public class Terminal {
 
         for (String argument :
                 args) {
-            System.out.println(argument);
-            Path path = Paths.get(argument) ;
+            Path path = pathsHandle(argument) ;
 
-            if (path.isAbsolute()){
-                File directory = new File(path.toString()) ;
-                if (!directory.mkdir()){
-                    errors.append("the directory ").append(directory).append(" is not created\n") ;
-                }
-            }
-            else{
-                path = Paths.get(currentDirectory, argument).normalize() ;
-
-                File directory = new File(path.toString()) ;
-                if (!directory.mkdir()){
-                    errors.append("the directory ").append(directory).append(" is not created\n") ;
-                }
+            File directory = new File(path.toString()) ;
+            if (!directory.mkdir()){
+                errors.append("the directory ").append(directory).append(" is not created\n") ;
             }
         }
         if (!errors.toString().isEmpty()){
@@ -228,7 +228,7 @@ public class Terminal {
             String argument = args[0] ;
 
             if (argument.equals("*")) {
-                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory.toString()));
                 for (Path child : directoryStream) {
                     if (Files.isDirectory(child) && !Files.newDirectoryStream(child).iterator().hasNext()) {
                         Files.delete(child);
@@ -237,12 +237,9 @@ public class Terminal {
 
                 directoryStream.close();
             } else {
-                Path path = Paths.get(argument);
-                if (!path.isAbsolute()) {
-                    path = Paths.get(currentDirectory, argument).normalize();
-                }
-
+                Path path = pathsHandle(argument);
                 DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+
                 if (!directoryStream.iterator().hasNext()) {
                     Files.delete(path);
                 }
@@ -265,11 +262,7 @@ public class Terminal {
     public void touch(String[] args) throws IOException {
         if (args.length == 1){
             String argument = args[0];
-            Path path = Paths.get(argument);
-
-            if (!path.isAbsolute()) {
-                path = Paths.get(currentDirectory, argument);
-            }
+            Path path = pathsHandle(argument);
             final File file = new File(path.toString());
 
             if (!file.createNewFile()) {
@@ -293,21 +286,14 @@ public class Terminal {
      */
     public void cp(String[] args) throws IOException {
         if (args.length == 2){
-            Path firstPath, secondPath ;
-
-            if (Paths.get(args[0]).isAbsolute()){
-                firstPath = Paths.get(args[0]) ;
-            }else{
-                firstPath = Paths.get(currentDirectory, args[0]) ;
-            }
-            if (Paths.get(args[1]).isAbsolute()){
-                secondPath = Paths.get(args[1]) ;
-            } else{
-                secondPath = Paths.get(currentDirectory, args[1]) ;
-            }
+            Path firstPath = pathsHandle(args[0]), secondPath = pathsHandle(args[1]) ;
 
             if (Files.exists(firstPath) && Files.exists(secondPath)){
                 Files.copy(firstPath, secondPath, REPLACE_EXISTING) ;
+                return;
+            }
+            else if (Files.exists(firstPath)){
+                Files.copy(firstPath, secondPath) ;
                 return;
             }
         }
@@ -332,7 +318,6 @@ public class Terminal {
                     return;
                 }
             }
-
             String[] list = src.list();
             assert list != null;
 
@@ -360,18 +345,8 @@ public class Terminal {
      */
     public void cpR(String[] args) throws IOException {
         if (args.length == 2){
-            Path firstPath, secondPath ;
+            Path firstPath = pathsHandle(args[0]), secondPath = pathsHandle(args[1]);
 
-            if (Paths.get(args[0]).isAbsolute()){
-                firstPath = Paths.get(args[0]) ;
-            }else{
-                firstPath = Paths.get(currentDirectory, args[0]) ;
-            }
-            if (Paths.get(args[1]).isAbsolute()){
-                secondPath = Paths.get(args[1]) ;
-            } else{
-                secondPath = Paths.get(currentDirectory, args[1]) ;
-            }
             if (Files.isDirectory(firstPath) && Files.isDirectory(secondPath)) {
                 File destination = new File(Paths.get(secondPath.toString(), firstPath.getFileName().toString()).toString()) ;
                 if (!destination.exists()){
@@ -379,6 +354,10 @@ public class Terminal {
                         copyDirectories(new File(firstPath.toString()), destination) ;
                         return;
                     }
+                }
+                else{
+                    copyDirectories(new File(firstPath.toString()), destination) ;
+                    return;
                 }
             }
         }
@@ -396,7 +375,7 @@ public class Terminal {
     public void rm(String[] args) throws IOException {
         if (args.length == 1){
             String argument = args[0];
-            Path path = Paths.get(currentDirectory, argument);
+            Path path = pathsHandle(argument);
 
             if (Files.exists(path)){
                 Files.delete(path);
@@ -439,26 +418,11 @@ public class Terminal {
      */
     public String cat(String[] args) throws FileNotFoundException {
         if (args.length == 1) {
-            Path firstPath;
-            if (Paths.get(args[0]).isAbsolute()) {
-                firstPath = Paths.get(args[0]);
-            } else {
-                firstPath = Paths.get(currentDirectory, args[0]);
-            }
-
+            Path firstPath = pathsHandle(args[0]);
             return (printFileContent(new File(firstPath.toString())));
-        } else if (args.length == 2) {
-            Path firstPath, secondPath;
-            if (Paths.get(args[0]).isAbsolute()) {
-                firstPath = Paths.get(args[0]);
-            } else {
-                firstPath = Paths.get(currentDirectory, args[0]);
-            }
-            if (Paths.get(args[1]).isAbsolute()) {
-                secondPath = Paths.get(args[1]);
-            } else {
-                secondPath = Paths.get(currentDirectory, args[1]);
-            }
+        }
+        else if (args.length == 2) {
+            Path firstPath = pathsHandle(args[0]), secondPath = pathsHandle(args[1]);
 
             return (printFileContent(new File(firstPath.toString())) +
                     printFileContent(new File(secondPath.toString())));
@@ -479,13 +443,7 @@ public class Terminal {
      *</blockquote>
      */
     public String wc(String[] args) throws IOException {
-        Path path ;
-        if (Paths.get(args[0]).isAbsolute()){
-            path = Paths.get(args[0]) ;
-        }
-        else{
-            path = Paths.get(currentDirectory, args[0]) ;
-        }
+        Path path = pathsHandle(args[0]);
 
         if (Files.exists(path)) {
             FileReader fileReader = new FileReader(path.toString());
@@ -560,13 +518,7 @@ public class Terminal {
      *</blockquote>
      */
     public void redirect(String content, String file, boolean ifShouldExist) throws IOException {
-        File outputFile;
-        if (Paths.get(file).isAbsolute()){
-            outputFile = new File(file) ;
-        }
-        else{
-            outputFile = new File(Paths.get(currentDirectory, file).toString()) ;
-        }
+        File outputFile = new File(pathsHandle(file).toString());
 
         if (ifShouldExist){
             if (!Files.exists(outputFile.toPath())) {
