@@ -41,7 +41,10 @@ public class Parser {
             commandName = parts[0];
 
             if (parts.length > 1) {
+                // Take first argument which command name and remove all spacing with trim func.
                 String argString = parts[1].trim();
+
+                // For case cp -r, ls -r so i will add -r to the command Name
                 if (argString.charAt(0) == '-') {
                     commandName += " -" + argString.charAt(1);
                     argString = argString.substring(2);
@@ -53,6 +56,8 @@ public class Parser {
                 List<String> arguments = new Vector<>() ;
 
                 while (!argString.isEmpty()){
+                    // if the first char is ", so I will take the content
+                    // to another " and make argString to the remaining content
                     if (argString.charAt(0) == '\"'){
                         arguments.add(argString.substring(1, argString.substring(1).indexOf("\"") + 1)) ;
                         if (argString.substring(1).indexOf("\"") + 3 >= argString.length()){
@@ -60,6 +65,8 @@ public class Parser {
                         }
                         argString = argString.substring(argString.substring(1).indexOf("\"") + 3) ;
                     }
+                    // if the first char is space, so I will take the content
+                    // to another space and make argString to the remaining content
                     else{
                         if (argString.contains(" ")){
                             arguments.add(argString.substring(0, argString.indexOf(' '))) ;
