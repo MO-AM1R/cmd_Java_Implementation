@@ -493,8 +493,4 @@ public class Terminal {
         }
         commandsHistory.add(parser.getInput() + '\n') ;
     }
-
-    public String getCurrentDirectory() {
-        return currentDirectory;
-    }
 }
