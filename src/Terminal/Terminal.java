@@ -1,9 +1,8 @@
 package Terminal;
 import Parser.Parser ;
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *<pre>
@@ -11,216 +10,267 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  *and what each command will do
  *</pre>
  * <blockquote>
- * @version <strong style="color:'white'">1.3</strong>
+ * @version <strong style="color:'white'">1.0</strong>
  * @author <pre style="color:'white'">Malik Khaled
  *     Mohamed Amir
  *     </pre>
  * </blockquote>
  */
 public class Terminal {
-
     /*Parser obj to parse the inputs*/
     Parser parser;
     String currentDirectory = System.getProperty("user.dir");
     List<String> commandsHistory = new LinkedList<>();
 
-    /**
-     *<pre>
-     *This setter {@code setParse} it set the parser to {@code parser}
-     *</pre>
-     * @param parser <strong style="color:'white'">the parser which will set</strong>
-     */
     public void setParser(Parser parser){
-
+        this.parser = parser ;
     }
 
+
+
+
     /**
      *<pre>
-     *This method {@code echo} will print the arguments {@code args}
+     *This method {@code echo} will print the arguments
      *</pre>
-     * <blockquote>
-     * @param args <strong style="color:'white'">the arguments which will print</strong>
-     * @return string <strong style="color:'white'">the text which print</strong>
-     * </blockquote>
+     * @return string <strong style="color:'white'">represent the current path</strong>
      */
+
     public String echo(String[] args){
-        return null;
+        StringBuilder output = new StringBuilder();
+        for (String arg : args) {
+            output.append(arg).append(" ");
+        }
+        return output.toString().trim();
     }
 
     /**
      *<pre>
      *This method {@code pwd} will get the current path
      *</pre>
-     * <blockquote>
-     *     @return string <strong style="color:'white'">represent the current path</strong>
-     * </blockquote>
+     * @return string <strong style="color:'white'">represent the current path</strong>
      */
     public String pwd(){
-        return null;
+        return currentDirectory;
     }
 
     /**
      *<pre>
      *This method {@code cd} will change the path to new one
+     *  -case 1: <strong style="color:'white'">no arguments and changes the current path
+     *  to the path of your home directory.</strong>
+     *
+     *  -case 2: <strong style="color:'white'">1 argument which is “..” (e.g. cd ..)
+     *  and changes the current directory to the previous directory.</strong>
+     *
+     *  -case 3: <strong style="color:'white'">1 argument which is either the full path or
+     *  the relative (short) path and changes the current path to that path.</strong>
      *</pre>
-     * <blockquote>
-     * @param args
-     *      <p></p>
-     *      -case 1: <strong style="color:'white'">no arguments and changes the current path
-     *          to the path of your home directory.</strong>
-     *        <p></p>
-     *      -case 2: <strong style="color:'white'">1 argument which is “..” (e.g. cd ..)
-     *        and changes the current directory to the previous directory.</strong>
-     *        <p></p>
-     *      -case 3: <strong style="color:'white'">1 argument which is either the full path or
-     *      the relative (short) path and changes the current path to that path.</strong>
-     *      *</blockquote>
      */
 
     public void cd(String[] args){
+    }
+
+    /**<pre>
+     *This method {@code ls} will print the history of commands
+     *</pre>
+     */
+    public void ls(){
+    }
+
+    /**<pre>
+     *This method {@code lsReversed} will print the history of commands reversed
+     *</pre>
+     */
+    public void lsReversed(){
+    }
+
+    /**<pre>
+     *This method {@code mkdir} will print the history of commands reversed
+     *</pre>
+     */
+    public void mkdir(String... directories) {
+        for (String dir : directories) {
+            Path dirPath;
+            if (dir.contains("/") || dir.contains("\\")) {
+                dirPath = Paths.get(dir);
+            } else {
+                dirPath = Paths.get(currentDirectory, dir);
+            }
+            try {
+                Files.createDirectories(dirPath);
+                System.out.println("Created directory: " + dirPath);
+            } catch (FileAlreadyExistsException e) {
+                System.err.println("Directory already exists: " + dirPath);
+            } catch (IOException e) {
+                System.err.println("Error creating directory: " + dirPath);
+            }
+        }
 
     }
 
     /**<pre>
-     *This method {@code ls} will print the directories of mt directory
-     *it return it sorted alphabetically
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     * <blockquote>
-     * @return List of String <strong style="color: 'white'"> represent the directories</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     * </blockquote>
      */
-    public List<String> ls() throws IOException {
-        return null;
+    public void rmdir(String[] args){
+        if (args.length == 1){
+            String argument = args[0] ;
+
+            try{
+                if (argument.equals("*")) {
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(currentDirectory));
+                    for (Path child : directoryStream) {
+                        if (Files.isDirectory(child) && !Files.newDirectoryStream(child).iterator().hasNext()) {
+                            Files.delete(child);
+                        }
+                    }
+
+                    directoryStream.close();
+                } else {
+                    Path path = Paths.get(argument);
+                    if (!path.isAbsolute()) {
+                        path = Paths.get(currentDirectory, argument).normalize();
+                    }
+
+                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+                    if (!directoryStream.iterator().hasNext()) {
+                        Files.delete(path);
+                    }
+
+                    directoryStream.close();
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                System.out.println("cannot find the directory");
+            }
+        }
+        else{
+            System.out.println("incorrect command line");
+        }
     }
 
     /**<pre>
-     *This method {@code lsReversed} will print the directories of mt directory
-     *it return it reversed
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     * <blockquote>
-     * @return List of String <strong style="color: 'white'"> represent the directories</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     * </blockquote>
      */
-    public List<String> lsReversed() throws IOException {
-        return null;
-    }
-
-    /**<pre>
-     *This method {@code mkdir} will creates a directory for each
-     *argument
-     *</pre>
-     *<blockquote>
-     *@param args
-     *      <strong style="color:'white'">
-     *          it can be relative or short path
-     *          represent the directory which will create
-     *      </strong>
-     *</blockquote>
-     */
-    public void mkdir(String[] args){
-
-    }
-
-    /**<pre>
-     *This method {@code rmdir} will remove the directory
-     *if the directory is empty will remove it
-     *</pre>
-     *<blockquote>
-     * @param args
-     *          <strong style="color:'white'">
-     *              it can be relative or short path
-     *              represent the directory which will remove
-     *              </strong>
-     *@throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
-     */
-    public void rmdir(String[] args) throws IOException {
-
-    }
-
-    /**<pre>
-     *This method {@code touch} will create a new file
-     *in the passed directory
-     *user can write a specific extension
-     *</pre>
-     *<blockquote>
-     *@param args
-     *      <strong style="color:'white'">
-     *          it can be relative or short path
-     *          represent the directory which will create into
-     *          new file
-     *      </strong>
-     *@throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
-     */
-    public void touch(String[] args) throws IOException {
+    public void touch(String... args){
+        Path dirPath;
+        if (args[0].contains("/") || args[0].contains("\\")) {
+            dirPath = Paths.get(args[0]);
+        } else {
+            dirPath = Paths.get(currentDirectory, args);
+        }
+        try {
+            Files.createFile(dirPath);
+            System.out.println("Created file: " + dirPath);
+        } catch (FileAlreadyExistsException e) {
+            System.err.println("File already exists: " + dirPath);
+        } catch (IOException e) {
+            System.err.println("Error creating file: " + dirPath);
+        }
 
     }
 
     /**<pre>
-     *This method {@code cp} will copy the content of the file
-     *to another file in the same directory
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     *<blockquote>
-     * @param args <strong style="color:'white'"> represent the file names or the directories of them</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
      */
-    public void cp(String[] args) throws IOException {
+    public void cp(){
 
     }
 
     /**<pre>
-     *This method {@code cpR} will copy the first file with all it's content
-     *to the second file
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     *<blockquote>
-     * @param args <strong style="color:'white'"> represent the paths of the files</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
      */
-    public void cpR(String[] args) throws IOException {
+    public void cpR(){
 
     }
 
     /**<pre>
-     *This method {@code rm} will remove file in the directory
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     *<blockquote>
-     * @param args <strong style="color:'white'">it represent the file name</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
      */
-    public void rm(String[] args) throws IOException {
+    public void rm(String... args){
+        Path dirPath;
+        dirPath = Paths.get(currentDirectory, args[0]);
 
+        try {
+            Files.delete(dirPath);
+            System.out.println("Deleted file: " + dirPath);
+        } catch (NoSuchFileException e){
+            System.err.println("File doesn't exist: ");
+        } catch (IOException e) {
+            System.err.println("Error deleting file: ");
+        }
     }
 
-    /**
-     *<pre>
-     *This method {@code cat} will take 1 argument and prints the file’s content or takes 2
-     *arguments and concatenates the content of the 2 files and prints it.
+    /**<pre>
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     *<blockquote>
-     * @param args <strong style="color:'white'"> represent the file name\s</strong>
-     * @throws FileNotFoundException <strong style="color:'white'"> if the file not exit</strong>
-     *</blockquote>
      */
-    public void cat(String[] args) throws FileNotFoundException {
+    public void cat(String... args){
+        Path dirPath1;
+        dirPath1 = Paths.get(currentDirectory, args[0]);
+        if(args.length == 2){
+            Path dirPath2;
+            dirPath2 = Paths.get(currentDirectory, args[1]);
+            try {
+                List<String> lines = Files.readAllLines(dirPath1);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+                lines = Files.readAllLines(dirPath2);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            } catch (NoSuchFileException e){
+                System.err.println("File doesn't exist: ");
+            } catch (IOException e) {
+                System.err.println("Error reading file: ");
+            }
+        }
+        else {
+            try {
+                List<String> lines = Files.readAllLines(dirPath1);
+                for (String line : lines) {
+                    System.out.println(line);
+                }
+            } catch (NoSuchFileException e) {
+                System.err.println("File doesn't exist: ");
+            } catch (IOException e) {
+                System.err.println("Error reading file: ");
+            }
+        }
 
     }
 
     /**<pre>
-     *This method {@code wc} will print the number of lines, words, characters
-     *and name in the file
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
-     *<blockquote>
-     * @param args <strong style="color:'white'"> the name of the file</strong>
-     * @throws IOException <strong style="color:'white'"> if failed or interrupted I/O operations.</strong>
-     *</blockquote>
      */
-    public void wc(String[] args) throws IOException {
+    public void wc(String... args){
+        try{
+            int linecount = 0;
+            int wordcount = 0;
+            int charcount = 0;
+            Path dirPath;
+            dirPath = Paths.get(currentDirectory, args[0]);
+            List<String> lines = Files.readAllLines(dirPath);
+            for (String line : lines) {
+                linecount++;
+                charcount += line.length();
+                String[] words = line.split("\\s+");
+                wordcount += words.length;
+            }
+            System.out.println("lines: " + linecount + " words: " + wordcount + " characters: " + charcount);
+        } catch (NoSuchFileException e){
+            System.err.println("File doesn't exist: ");
+        } catch (IOException e) {
+            System.err.println("Error reading file: ");
+        }
 
     }
 
@@ -229,6 +279,7 @@ public class Terminal {
      *</pre>
      */
     public void redirect(){
+
 
     }
 
@@ -241,7 +292,7 @@ public class Terminal {
     }
 
     /**<pre>
-     *This method {@code history} will print the history of commands reversed
+     *This method {@code rmdir} will print the history of commands reversed
      *</pre>
      */
     public void history(){
@@ -254,61 +305,59 @@ public class Terminal {
      *</pre>
      */
     public void chooseCommandAction(){
-        try {
-            if (!parser.parse(parser.getInput())) {
-                System.out.println("Command not found.");
-                return;
-            }
-            String commandName = parser.getCommandName();
+        String commandName = parser.getCommandName() ;
 
-            if (commandName.equals("echo")) {
-                System.out.println(echo(parser.getArgs()));
-            } else if (commandName.equals("pwd")) {
-                System.out.println(pwd());
-            } else if (commandName.equals("cd")) {
-                cd(parser.getArgs());
-            } else if (commandName.equals("ls")) {
-                System.out.println(ls().toString().replaceAll(", ", "").
-                        replaceAll("]", "").
-                        replaceAll("\\[", ""));
-
-            } else if (commandName.equals("ls -r")) {
-                System.out.println(lsReversed().toString().replaceAll(", ", "").
-                        replaceAll("]", "").
-                        replaceAll("\\[", ""));
-
-            } else if (commandName.equals("mkdir")) {
-                mkdir(parser.getArgs());
-            } else if (commandName.equals("rmdir")) {
-                rmdir(parser.getArgs());
-            } else if (commandName.equals("touch")) {
-                touch(parser.getArgs());
-            } else if (commandName.equals("cp")) {
-                cp(parser.getArgs());
-            } else if (commandName.equals("cp -r")) {
-                cpR(parser.getArgs());
-            } else if (commandName.equals("rm")) {
-                rm(parser.getArgs());
-            } else if (commandName.equals("cat")) {
-                cat(parser.getArgs());
-            } else if (commandName.equals("wc")) {
-                wc(parser.getArgs());
-            } else if (commandName.equals(">")) {
-                redirect();
-            } else if (commandName.equals(">>")) {
-                redirectIfExist();
-            } else if (commandName.equals("history")) {
-                history();
-            } else if (commandName.equals("exit")) {
-                return;
-            } else {
-                System.out.println("Command not found.");
-            }
+        if (commandName.equals("echo")) {
+            System.out.println(echo(parser.getArgs()));
+        } else if (commandName.equals("pwd")) {
+            System.out.println(pwd());
+        } else if (commandName.equals("cd")) {
+            cd(parser.getArgs());
         }
-        catch (Exception exception){
-            System.out.println("Incorrect using for teh command.");
+        else if (commandName.equals("ls")){
+            ls();
         }
-        commandsHistory.add(parser.getInput() + '\n') ;
+        else if (commandName.equals("ls-r")){
+            lsReversed();
+        }
+        else if (commandName.equals("mkdir")){
+            mkdir();
+        }
+        else if (commandName.equals("rmdir")){
+            rmdir();
+        }
+        else if (commandName.equals("touch")){
+            touch();
+        }
+        else if (commandName.equals("cp")){
+            cp();
+        }
+        else if (commandName.equals("cp-r")){
+            cpR();
+        }
+        else if (commandName.equals("rm")){
+            rm();
+        }
+        else if (commandName.equals("cat")){
+            cat();
+        }
+        else if (commandName.equals("wc")){
+            wc();
+        }
+        else if(commandName.equals(">")){
+            redirect();
+        }
+        else if(commandName.equals(">>")){
+            redirectIfExist();
+        }
+        else if(commandName.equals("history")){
+            history();
+        }
+        else {
+            System.out.println("Command not found.");
+        }
+
+        commandsHistory.add(parser.getInput()) ;
     }
 
     public String getCurrentDirectory() {
