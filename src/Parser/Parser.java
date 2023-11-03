@@ -49,7 +49,7 @@ public class Parser {
                     commandName += " -" + argString.charAt(1);
                     argString = argString.substring(2);
 
-                    if (argString.charAt(0) == ' '){
+                    if (argString.length() > 1 && argString.charAt(0) == ' '){
                         argString = argString.replaceFirst(" ", "") ;
                     }
                 }
