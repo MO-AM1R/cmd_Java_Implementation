@@ -289,6 +289,10 @@ public class Terminal {
             Path firstPath = pathsHandle(args[0]), secondPath = pathsHandle(args[1]) ;
 
             if (Files.exists(firstPath) && Files.exists(secondPath)){
+                // for Append
+//                Files.write(secondPath, Files.readAllLines(firstPath), StandardOpenOption.APPEND);
+
+                // for replace the existing content
                 Files.copy(firstPath, secondPath, REPLACE_EXISTING) ;
                 return;
             }
