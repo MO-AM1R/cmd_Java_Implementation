@@ -41,7 +41,10 @@ public class Parser {
             commandName = parts[0];
 
             if (parts.length > 1) {
+                // Take first argument which command name and remove all spacing with trim func.
                 String argString = parts[1].trim();
+
+                // For case cp -r, ls -r so i will add -r to the command Name
                 if (argString.charAt(0) == '-') {
                     commandName += " -" + argString.charAt(1);
                     argString = argString.substring(2);
@@ -53,6 +56,8 @@ public class Parser {
                 List<String> arguments = new Vector<>() ;
 
                 while (!argString.isEmpty()){
+                    // if the first char is ", so I will take the content
+                    // to another " and make argString to the remaining content
                     if (argString.charAt(0) == '\"'){
                         arguments.add(argString.substring(1, argString.substring(1).indexOf("\"") + 1)) ;
                         if (argString.substring(1).indexOf("\"") + 3 >= argString.length()){
@@ -60,6 +65,8 @@ public class Parser {
                         }
                         argString = argString.substring(argString.substring(1).indexOf("\"") + 3) ;
                     }
+                    // if the first char is space, so I will take the content
+                    // to another space and make argString to the remaining content
                     else{
                         if (argString.contains(" ")){
                             arguments.add(argString.substring(0, argString.indexOf(' '))) ;
@@ -120,16 +127,29 @@ public class Parser {
     /**
      * This method to return the input which parsed
      *
-     * @return String <strong style="color:'white'">{@code input}</strong>
+     * @return String <strong style="color:'white'"> {@code input}</strong>
      */
     public String getInput(){
         return input;
     }
 
+    /**
+     *<pre>
+     *This method {@code setInput} it setter for input property
+     *</pre>
+     * @param input <strong style="color:'white'"> {@code the new input which will be set to input}</strong>
+     */
     public void setInput(String input) {
         this.input = input ;
     }
 
+    /**
+     *<pre>
+     *This method {@code getRedirectCommandName} it getter for getRedirectCommandName property
+     *</pre>
+     * @return redirectCommandName <strong style="color:'white'"> {@code the new redirect command
+     * which be called to redirect the output}</strong>
+     */
     public String getRedirectCommandName() {
         return redirectCommandName ;
     }
